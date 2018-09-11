@@ -142,8 +142,6 @@ function getRanking (week) {
     if (week)
         url += "&week="+week;
     
-    console.log(url);
-    
     var options = {
         url: url,
         headers: {
@@ -177,15 +175,13 @@ function getScore (week) {
             }
         }
     }
-    
-    console.log(url);
-    
     var options = {
         url: url,
         headers: {
             'User-Agent': 'request'
         }
     };
+    console.log(url);
 
     return new Promise(function(resolve, reject) {
         request.get(options, function(err, resp, body) {
@@ -261,69 +257,110 @@ bot.on(['/ranking'], (msg) => {
     });    
 });
      
-bot.on(['/placar'], (msg) => {
+bot.on(['/placar', '/placar_mini'], (msg) => {
     var str = "";
+    var placar_mini = false;
     var param = "";
     var chat_id = msg.chat.id;
     
-    if (msg.text.length > 7) {
+    if (msg.text.substring(0, 12) == "/placar_mini")
+        placar_mini = true;
+    
+    if (!placar_mini && msg.text.length > 7)
         param = msg.text.substring(7);
-        param = param.trim();
-        if (param == "@BotdgersBot" ||
-            param < 1 ||
-            param > 21)
-            param = "";
-    }
+    else if (placar_mini && msg.text.length > 12)
+        param = msg.text.substring(12);
+
+    param = param.trim();
+  
+    if (param == "@BotdgersBot" ||
+        param < 1 ||
+        param > 21)
+        param = "";
+
     var getScorePromise = getScore(param);
     getScorePromise.then(function(response) {
         
-        console.log(str);
         str += "<code>";
         if (param.length > 0)
             str += "Semana " + param + "\n\n";
-        str += leftJustify("Status", 17);
-        str += leftJustify("Away", 10);
-        str += leftJustify("", 8);
-        str += rightJustify("Home", 10);
-        str += "\n";
-        for (var i = 0; i < response.length; i++) {
-            match = response[i];
-            
-            if (match.status == "P") {
-                var jsDate = new Date(match.timestamp * 1000);
-                time =  (jsDate.getDate()<10?'0':'') + jsDate.getDate() + "/" + 
-                        (jsDate.getMonth()<10?'0':'') + jsDate.getMonth() + " " + 
-                        (jsDate.getHours()<10?'0':'') + jsDate.getHours() + ":" + 
-                        (jsDate.getMinutes()<10?'0':'') + jsDate.getMinutes();
-                
-            } else {
-                time = match.status;
+        
+        if (!placar_mini) {
+            str += leftJustify("Status", 17);
+            str += leftJustify("Away", 10);
+            str += leftJustify("", 8);
+            str += rightJustify("Home", 10);
+            str += "\n";
+            for (var i = 0; i < response.length; i++) {
+                match = response[i];
+
+                if (match.status == "P") {
+                    var jsDate = new Date(match.timestamp * 1000);
+                    time =  (jsDate.getDate()<10?'0':'') + jsDate.getDate() + "/" + 
+                            (jsDate.getMonth()<10?'0':'') + jsDate.getMonth() + " " + 
+                            (jsDate.getHours()<10?'0':'') + jsDate.getHours() + ":" + 
+                            (jsDate.getMinutes()<10?'0':'') + jsDate.getMinutes();
+
+                } else {
+                    time = match.status;
+                }
+                away_team = match.team_away_alias;
+                away_points = match.away_points.toString();
+                home_points = match.home_points.toString();
+                home_team = match.team_home_alias;
+                possession = match.possession;
+
+                time = leftJustify(time, 16);
+                away_team = leftJustify(away_team, 10);
+                away_team_points = leftJustify(away_points, 3);                        
+                home_team_points = rightJustify(home_points, 3);
+                home_team = rightJustify(home_team, 10);
+                str += time;
+                if (possession == "away")
+                    str += "»";
+                else str += " ";
+
+                str += away_team + away_team_points + "@" + home_team_points + home_team;
+
+                if (possession == "home")
+                    str += "«\n";
+                else str += " \n";
+
             }
-            away_team = match.team_away_alias;
-            away_points = match.away_points.toString();
-            home_points = match.home_points.toString();
-            home_team = match.team_home_alias;
-            possession = match.possession;
-            
-            time = leftJustify(time, 16);
-            away_team = leftJustify(away_team, 10);
-            away_team_points = leftJustify(away_points, 3);                        
-            home_team_points = rightJustify(home_points, 3);
-            home_team = rightJustify(home_team, 10);
-            str += time;
-            if (possession == "away")
-                str += "»";
-            else str += " ";
-            
-            str += away_team + away_team_points + "@" + home_team_points + home_team;
-            
-            if (possession == "home")
-                str += "«\n";
-            else str += " ";
-            
+        } else {
+            for (var i = 0; i < response.length; i++) {
+                match = response[i];
+
+                if (match.status == "P") {
+                    var jsDate = new Date(match.timestamp * 1000);
+                    time =  (jsDate.getDate()<10?'0':'') + jsDate.getDate() + "/" + 
+                            (jsDate.getMonth()<10?'0':'') + jsDate.getMonth() + " " + 
+                            (jsDate.getHours()<10?'0':'') + jsDate.getHours() + ":" + 
+                            (jsDate.getMinutes()<10?'0':'') + jsDate.getMinutes();
+
+                } else {
+                    time = match.status;
+                }
+                away_team = match.team_away_code;
+                away_points = match.away_points.toString();
+                home_points = match.home_points.toString();
+                home_team = match.team_home_code;
+                possession = match.possession;
+
+                str += time + "\n";
+                
+                if (possession == "away")
+                    str += "»";
+                else str += " ";
+                                
+                str += leftJustify(away_team, 3) + " " + rightJustify(away_points, 2) + " @ " + leftJustify(home_points, 2) + " " + rightJustify(home_team, 3);
+                
+                if (possession == "home")
+                    str += "«\n";
+                else str += " \n";                
+            }
         }
         str += "</code>";
-        console.log(str);      
         bot.sendMessage(chat_id, str, {"parseMode": "HTML"}).catch(err => console.log(err));
 
     }, function (err) {
