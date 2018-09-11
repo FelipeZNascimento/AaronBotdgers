@@ -1,6 +1,10 @@
 {
   "requires": true,
   "lockfileVersion": 1,
+    "scripts": {
+        "start": "node app.js"
+    },
+
   "dependencies": {
     "ajv": {
       "version": "5.5.2",
