@@ -117,11 +117,15 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
         if (param.length > 0)
             str += "Semana " + param + "\n\n";
         
-        str += util.leftJustify("Status", 17);
-        str += util.leftJustify("Away", 4);
-        str += util.leftJustify("", 8);
-        str += util.rightJustify("Home", 4);
-        str += "\n";
+        //Header only if not mini scoreboard
+        if (!placar_mini) {
+            str += util.leftJustify("Status", 17);
+            str += "Away";
+            str += util.leftJustify("", 7);
+            str += "Home";
+            str += "\n";
+        }
+        
         for (var i = 0; i < response.length; i++) {
             match = response[i];
 
@@ -150,7 +154,7 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
                 str += "»";
             else str += " ";
 
-            str += util.leftJustify(away_team, 4) + util.rightJustify(away_points, 3) + "@" + util.leftJustify(home_points, 3) + util.rightJustify(home_team, 4);
+            str += util.leftJustify(away_team, 4) + util.rightJustify(away_points, 2) + " @ " + util.leftJustify(home_points, 2) + util.rightJustify(home_team, 4);
 
             if (possession == "home")
                 str += "«\n";
