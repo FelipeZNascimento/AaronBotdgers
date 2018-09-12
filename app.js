@@ -1,17 +1,14 @@
 const http = require('http');
 const request = require('request');
-const aws = require('aws-sdk');
-
-let bot_config = new aws.S3({
-  key: process.env.BOT_KEY
-});
+const index = require("./views/index.js");
 
 const hostname = '127.0.0.1';
 const port = 3000;
 const apiDomain = "https://www.felipe.zanon.tk/bolaonfl/sql/";
 const currentSeason = '6';
 const TeleBot = require('telebot');
-const bot = new TeleBot(bot_config.key);
+const BOT_KEY = process.env.BOT_KEY;
+const bot = new TeleBot(BOT_KEY);
 const weeks = [
     {
         number: 1,
@@ -377,8 +374,9 @@ bot.start();
 
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World\n');
+//    res.setHeader('Content-Type', 'text/plain');
+//    res.end('Hello World\n');
+    index.sayHelloInEnglish();
 });
 
 server.listen(port, hostname, () => {
