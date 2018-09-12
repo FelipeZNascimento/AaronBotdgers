@@ -1,3 +1,4 @@
+const request = require('request');
 //Useful functions
 
 //Makes API request

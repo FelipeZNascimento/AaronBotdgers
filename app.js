@@ -1,5 +1,5 @@
 const http = require('http');
-const request = require('request');
+//const request = require('request');
 const express = require('express');
 const TeleBot = require('telebot');
 const CONSTANTS = require('./constants.js');
@@ -209,9 +209,9 @@ var app = express();
 app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
-app.get('/', function(request, response) {
-  response.sendFile(__dirname + '/views/index.html');
-});
+//app.get('/', function(request, response) {
+//  response.sendFile(__dirname + '/views/index.html');
+//});
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function() {
