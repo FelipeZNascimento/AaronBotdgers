@@ -1,14 +1,15 @@
 const http = require('http');
 const request = require('request');
-const index = require("./views/index.js");
-
-const hostname = '127.0.0.1';
-const port = 3000;
-const apiDomain = "https://www.felipe.zanon.tk/bolaonfl/sql/";
-const currentSeason = '6';
+const express = require('express');
 const TeleBot = require('telebot');
+
 const BOT_KEY = process.env.BOT_KEY;
+const API_DOMAIN = process.env.API_DOMAIN;
+
+const currentSeason = '6';
+
 const bot = new TeleBot(BOT_KEY);
+
 const weeks = [
     {
         number: 1,
@@ -139,7 +140,7 @@ const weeks = [
 ];
 
 function getRanking (week) {
-    url = apiDomain + 'getRanking.php?season=' + currentSeason;
+    url = API_DOMAIN + 'getRanking.php?season=' + currentSeason;
     if (week)
         url += "&week="+week;
     
@@ -162,7 +163,7 @@ function getRanking (week) {
 }
 
 function getScore (week) {
-    url = apiDomain + 'getMatches.php?season=' + currentSeason;
+    url = API_DOMAIN + 'getMatches.php?season=' + currentSeason;
 
     if (week) {
         url += "&week="+week;
@@ -372,13 +373,27 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
 
 bot.start();
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-//    res.setHeader('Content-Type', 'text/plain');
-//    res.end('Hello World\n');
-    index.sayHelloInEnglish();
+//const server = http.createServer((req, res) => {
+//    res.statusCode = 200;
+////    res.setHeader('Content-Type', 'text/plain');
+////    res.end('Hello World\n');
+//    index.sayHelloInEnglish();
+//});
+//
+//server.listen(port, hostname, () => {
+//    console.log(`Server running at http://${hostname}:${port}/`);
+//});
+
+
+// http://expressjs.com/en/starter/static-files.html
+app.use(express.static('public'));
+
+// http://expressjs.com/en/starter/basic-routing.html
+app.get('/', function(request, response) {
+  response.sendFile(__dirname + '/views/index.html');
 });
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+// listen for requests :)
+var listener = app.listen(process.env.PORT, function() {
+  console.log('Your app is listening on port ' + listener.address().port);
 });
