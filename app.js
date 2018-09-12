@@ -5,6 +5,7 @@ const TeleBot = require('telebot');
 
 const BOT_KEY = process.env.BOT_KEY;
 const API_DOMAIN = process.env.API_DOMAIN;
+process.env.TZ = 'America/Sao_Paulo';
 
 const currentSeason = '6';
 
@@ -362,6 +363,7 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
                 else str += " \n";                
             }
         }
+        str += "\n\nHorário de Brasília (GMT-3)"
         str += "</code>";
         bot.sendMessage(chat_id, str, {"parseMode": "HTML"}).catch(err => console.log(err));
 
