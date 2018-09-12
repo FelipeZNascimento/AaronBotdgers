@@ -2,7 +2,8 @@ const http = require('http');
 const request = require('request');
 const express = require('express');
 const TeleBot = require('telebot');
-const CONSTANTS = require('./constants.js')
+const CONSTANTS = require('./constants.js');
+var util = require('./util.js');
 
 //Environment variables
 const BOT_KEY = process.env.BOT_KEY;
@@ -10,20 +11,20 @@ const API_DOMAIN = process.env.API_DOMAIN;
 process.env.TZ = 'America/Sao_Paulo';
 
 const WEEKS = CONSTANTS.WEEKS;
-const currentSeason = '6';
+const CURRENT_SEASON = CONSTANTS.CURRENT_SEASON;
 
 const bot = new TeleBot(BOT_KEY);
 
 function getRanking (week) {
-    url = API_DOMAIN + 'getRanking.php?season=' + currentSeason;
+    url = API_DOMAIN + 'getRanking.php?season=' + CURRENT_SEASON;
     if (week)
         url += "&week="+week;
     
-    return requestAPI(url);
+    return util.requestAPI(url);
 }
 
 function getScore (week) {
-    url = API_DOMAIN + 'getMatches.php?season=' + currentSeason;
+    url = API_DOMAIN + 'getMatches.php?season=' + CURRENT_SEASON;
 
     if (week) {
         url += "&week="+week;
@@ -37,43 +38,7 @@ function getScore (week) {
             }
         }
     }
-    return requestAPI(url);
-}
-
-function requestAPI(url) {
-    var options = {
-        url: url,
-        headers: {
-            'User-Agent': 'request'
-        }
-    };
-    
-    //For console debugging purposes
-    console.log(url);
-
-    return new Promise(function(resolve, reject) {
-        request.get(options, function(err, resp, body) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(JSON.parse(body));
-            }
-        })
-    })
-}
-
-function leftJustify (name, size) {
-    while (name.length <= size) {
-        name += " ";
-    }
-    return name;
-}
-
-function rightJustify (name, size) {
-    while (name.length <= size) {
-        name = " " + name;
-    }
-    return name;
+    return util.requestAPI(url);
 }
 
 //bot.on('text', (msg) => msg.reply.text(msg.text)); //Copycat message
@@ -106,14 +71,14 @@ bot.on(['/ranking'], (msg) => {
         if (param.length > 0)
             str += "Semana " + param + "\n\n";
         
-        str += leftJustify("", 3);
-        str += leftJustify("Nome", 15);
-        str += leftJustify("Pts", 4);
+        str += util.leftJustify("", 3);
+        str += util.leftJustify("Nome", 15);
+        str += util.leftJustify("Pts", 4);
         str += "\n";
         for (var i = 1; i < response.length; i++) {
-            position = leftJustify(response[i].position + ".", 3);
-            name = leftJustify(response[i].name, 15);
-            points = leftJustify(response[i].points_with_extras, 4);
+            position = util.leftJustify(response[i].position + ".", 3);
+            name = util.leftJustify(response[i].name, 15);
+            points = util.leftJustify(response[i].points_with_extras, 4);
             str += position + name + points + "\n";
         }
         str += "</code>";
@@ -153,10 +118,10 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
             str += "Semana " + param + "\n\n";
         
         if (!placar_mini) {
-            str += leftJustify("Status", 17);
-            str += leftJustify("Away", 10);
-            str += leftJustify("", 8);
-            str += rightJustify("Home", 10);
+            str += util.leftJustify("Status", 17);
+            str += util.leftJustify("Away", 10);
+            str += util.leftJustify("", 8);
+            str += util.rightJustify("Home", 10);
             str += "\n";
             for (var i = 0; i < response.length; i++) {
                 match = response[i];
@@ -177,11 +142,11 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
                 home_team = match.team_home_alias;
                 possession = match.possession;
 
-                time = leftJustify(time, 16);
-                away_team = leftJustify(away_team, 10);
-                away_team_points = leftJustify(away_points, 3);                        
-                home_team_points = rightJustify(home_points, 3);
-                home_team = rightJustify(home_team, 10);
+                time = util.leftJustify(time, 16);
+                away_team = util.leftJustify(away_team, 10);
+                away_team_points = util.leftJustify(away_points, 3);                        
+                home_team_points = util.rightJustify(home_points, 3);
+                home_team = util.rightJustify(home_team, 10);
                 str += time;
                 if (possession == "away")
                     str += "»";
@@ -220,7 +185,7 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
                     str += "»";
                 else str += " ";
                                 
-                str += leftJustify(away_team, 3) + " " + rightJustify(away_points, 2) + " @ " + leftJustify(home_points, 2) + " " + rightJustify(home_team, 3);
+                str += util.leftJustify(away_team, 3) + " " + util.rightJustify(away_points, 2) + " @ " + util.leftJustify(home_points, 2) + " " + util.rightJustify(home_team, 3);
                 
                 if (possession == "home")
                     str += "«\n";
@@ -236,19 +201,7 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
     });    
 });
 
-
 bot.start();
-
-//const server = http.createServer((req, res) => {
-//    res.statusCode = 200;
-////    res.setHeader('Content-Type', 'text/plain');
-////    res.end('Hello World\n');
-//    index.sayHelloInEnglish();
-//});
-//
-//server.listen(port, hostname, () => {
-//    console.log(`Server running at http://${hostname}:${port}/`);
-//});
 
 var app = express();
 

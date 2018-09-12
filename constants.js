@@ -1,3 +1,4 @@
+const currentSeason = '6';
 const weeks = [
     {
         number: 1,
@@ -128,5 +129,6 @@ const weeks = [
 ];
 
 module.exports = {
-  WEEKS : weeks
+  WEEKS : weeks,
+  CURRENT_SEASON : currentSeason
 };
