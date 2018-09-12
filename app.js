@@ -142,9 +142,9 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
             possession = match.possession;
 
             if (placar_mini)
-                str = time + "\n";
+                str += time + "\n";
             else
-                str = util.leftJustify(time, 16);
+                str += util.leftJustify(time, 16);
 
             if (possession == "away")
                 str += "»";
