@@ -384,6 +384,7 @@ bot.start();
 //    console.log(`Server running at http://${hostname}:${port}/`);
 //});
 
+var app = express();
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
