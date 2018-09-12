@@ -2,165 +2,24 @@ const http = require('http');
 const request = require('request');
 const express = require('express');
 const TeleBot = require('telebot');
+const CONSTANTS = require('./constants.js')
 
+//Environment variables
 const BOT_KEY = process.env.BOT_KEY;
 const API_DOMAIN = process.env.API_DOMAIN;
 process.env.TZ = 'America/Sao_Paulo';
 
+const WEEKS = CONSTANTS.WEEKS;
 const currentSeason = '6';
 
 const bot = new TeleBot(BOT_KEY);
-
-const weeks = [
-    {
-        number: 1,
-        text: 'Semana 1',
-        text_en: 'Week 1',
-        timestamp: 1536721200
-    },
-    {
-        number: 2,
-        text: 'Semana 2',
-        text_en: 'Week 2',
-        timestamp: 1537326000
-    },
-    {
-        number: 3,
-        text: 'Semana 3',
-        text_en: 'Week 3',
-        timestamp: 1537930800
-    },
-    {
-        number: 4,
-        text: 'Semana 4',
-        text_en: 'Week 4',
-        timestamp: 1538535600
-    },
-    {
-        number: 5,
-        text: 'Semana 5',
-        text_en: 'Week 5',
-        timestamp: 1539140400
-    },
-    {
-        number: 6,
-        text: 'Semana 6',
-        text_en: 'Week 6',
-        timestamp: 1539745200
-    },
-    {
-        number: 7,
-        text: 'Semana 7',
-        text_en: 'Week 7',
-        timestamp: 1540350000
-    },
-    {
-        number: 8,
-        text: 'Semana 8',
-        text_en: 'Week 8',
-        timestamp: 1540954800
-    },
-    {
-        number: 9,
-        text: 'Semana 9',
-        text_en: 'Week 9',
-        timestamp: 1541556000
-    },
-    {
-        number: 10,
-        text: 'Semana 10',
-        text_en: 'Week 10',
-        timestamp: 1542160800
-    },
-    {
-        number: 11,
-        text: 'Semana 11',
-        text_en: 'Week 11',
-        timestamp: 1542765600
-    },
-    {
-        number: 12,
-        text: 'Semana 12',
-        text_en: 'Week 12',
-        timestamp: 1543370400
-    },
-    {
-        number: 13,
-        text: 'Semana 13',
-        text_en: 'Week 13',
-        timestamp: 1543975200
-    },
-    {
-        number: 14,
-        text: 'Semana 14',
-        text_en: 'Week 14',
-        timestamp: 1544580000
-    },
-    {
-        number: 15,
-        text: 'Semana 15',
-        text_en: 'Week 15',
-        timestamp: 1545184800
-    },
-    {
-        number: 16,
-        text: 'Semana 16',
-        text_en: 'Week 16',
-        timestamp: 1545789600
-    },
-    {
-        number: 17,
-        text: 'Semana 17',
-        text_en: 'Week 17',
-        timestamp: 1546394400
-    },
-    {
-        number: 18,
-        text: 'Wild Card',
-        text_en: 'Wild Card',
-        timestamp: 1546999200
-    },
-    {
-        number: 19,
-        text: 'Rodada Divisional',
-        text_en: 'Divisional Round',
-        timestamp: 1547604000
-    },
-    {
-        number: 20,
-        text: 'Finais de Conferência',
-        text_en: 'Conference Finals',
-        timestamp: 1548208800
-    },
-    {
-        number: 21,
-        text: 'Super Bowl',
-        text_en: 'Super Bowl',
-        timestamp: 1559887200 //2019 June, 07
-    }
-];
 
 function getRanking (week) {
     url = API_DOMAIN + 'getRanking.php?season=' + currentSeason;
     if (week)
         url += "&week="+week;
     
-    var options = {
-        url: url,
-        headers: {
-            'User-Agent': 'request'
-        }
-    };
-
-    return new Promise(function(resolve, reject) {
-        request.get(options, function(err, resp, body) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(JSON.parse(body));
-            }
-        })
-    })
+    return requestAPI(url);
 }
 
 function getScore (week) {
@@ -170,20 +29,26 @@ function getScore (week) {
         url += "&week="+week;
     } else {
         nowTimetamp = Date.now() / 1000;
-        for (var i = 0; i < weeks.length; i++) {
-            if (nowTimetamp < weeks[i].timestamp) {
-                week = weeks[i].number;
+        for (var i = 0; i < WEEKS.length; i++) {
+            if (nowTimetamp < WEEKS[i].timestamp) {
+                week = WEEKS[i].number;
                 url += "&week="+week;
                 break;
             }
         }
     }
+    return requestAPI(url);
+}
+
+function requestAPI(url) {
     var options = {
         url: url,
         headers: {
             'User-Agent': 'request'
         }
     };
+    
+    //For console debugging purposes
     console.log(url);
 
     return new Promise(function(resolve, reject) {
@@ -196,7 +61,6 @@ function getScore (week) {
         })
     })
 }
-
 
 function leftJustify (name, size) {
     while (name.length <= size) {
