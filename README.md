@@ -1,6 +1,6 @@
 # AaronBotdgers
 
-Telegram bot used to track results and ranking from [BolaoNFL](https://www.felipe.zanon.tk/bolaonfl).
+Telegram bot used to track results and ranking from [BolaoNFL](https://www.omegafox.me/bolaonfl).
 
 Accepted commands:
 * ranking               - Returns general ranking from current season.
