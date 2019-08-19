@@ -44,11 +44,28 @@ function getScore (week) {
 //bot.on('text', (msg) => msg.reply.text(msg.text)); //Copycat message
 
 bot.on(['/start'], (msg) =>     msg.reply.text('Olá, eu sou o Aaron Botdgers e estou aqui pra entregar cada request que você fizer (assim como minha versão humana).'));
-bot.on(['/help'], (msg) =>      msg.reply.text('Eu respondo aos seguintes comandos: /start, /help, /belt, /hailmary, /ranking'));
+bot.on(['/help'], (msg) => {
+    var chat_id = msg.chat.id;
+    
+    var str = "Eu respondo aos seguintes comandos:\n\n";
+    str += "<code>";
+    str += "/ranking - Retorna ranking geral da atual temporada\n"
+    str += "/ranking [semana] - Retorna ranking da semana escolhida\n"
+    str += "/placar - Retorna placar da atual semana\n"
+    str += "/placar [semana] - Retorna placar da semana escolhida\n"
+    str += "/placar_mini - Retorna placar da atual semana (versão mobile)\n"
+    str += "/placar_mini [semana] - Retorna placar da semana escolhida (versão mobile)\n"
+    str += "/belt - Retorna um gif do Aaron Rodgers fazendo a comemoração cinturão\n"
+    str += "/hailmary - Retorna um gif da Hail Mary contra Detroit (Milagre de Detroit)\n"
+    str += "</code>";
+
+    bot.sendMessage(chat_id, str, {"parseMode": "HTML"}).catch(err => console.log(err));
+});
+
 bot.on(['/belt'], (msg) =>      msg.reply.file('https://media.giphy.com/media/3o6wrpD9aOjLc5Q61W/giphy.gif', {asReply: true}));
 bot.on(['/hailmary'], (msg) =>  msg.reply.file('https://i.makeagif.com/media/12-04-2015/9p8g5g.gif', {asReply: true}));
-bot.on(['audio'], (msg) =>      msg.reply.text('Audible tá proibido nesse huddle.', { asReply: true }));
-bot.on('edit', (msg) =>         msg.reply.text('Eu vi você editando essa mensagem aí... 👀', { asReply: true }));
+bot.on(['voice'], (msg) =>      msg.reply.text('Audible tá proibido nesse huddle.', { asReply: true }));
+bot.on(['edit'], (msg) =>         msg.reply.text('Eu vi você editando essa mensagem aí... 👀', { asReply: true }));
 
 bot.on(['/ranking'], (msg) => {
     var str = "";
