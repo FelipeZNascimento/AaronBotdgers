@@ -97,12 +97,12 @@ bot.on(['/ranking'], (msg) => {
             str += "Semana " + param + "\n\n";
         
         str += util.leftJustify("", 3);
-        str += util.leftJustify("Nome", 15);
+        str += util.leftJustify("Nome", 18);
         str += util.leftJustify("Pts", 4);
         str += "\n";
         for (var i = 1; i < response.length; i++) {
             position = util.leftJustify(response[i].position + ".", 3);
-            name = util.leftJustify(response[i].name, 15);
+            name = util.leftJustify(response[i].name, 18);
             points = util.leftJustify(response[i].points_with_extras, 4);
             str += position + name + points + "\n";
         }
