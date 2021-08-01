@@ -101,10 +101,11 @@ bot.on(['/ranking'], (msg) => {
         str += util.leftJustify("Nome", 18);
         str += util.leftJustify("Pts", 4);
         str += "\n";
-        for (var i = 1; i < response.length; i++) {
-            position = util.leftJustify(response[i].position + ".", 3);
-            name = util.leftJustify(response[i].name, 18);
-            points = util.leftJustify(response[i].points_with_extras, 4);
+        for (var i = 0; i < response.users.length; i++) {
+            let normalizedPosition = i + 1 > 9 ? `${i + 1}` : `0${i + 1}`;
+            let position = util.leftJustify(normalizedPosition + ".", 3);
+            let name = util.leftJustify(response.users[i].name, 18);
+            let points = util.leftJustify(response.users[i].totalPoints, 4);
             str += position + name + points + "\n";
         }
         str += "</code>";
