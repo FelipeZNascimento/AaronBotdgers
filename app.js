@@ -97,13 +97,13 @@ bot.on(['/ranking'], (msg) => {
         if (param.length > 0)
             str += "Semana " + param + "\n\n";
 
-        str += util.leftJustify("", 3);
+        str += util.leftJustify("", 4);
         str += util.leftJustify("Nome", 18);
         str += util.leftJustify("Pts", 4);
         str += "\n";
         for (var i = 0; i < response.users.length; i++) {
             let normalizedPosition = i + 1 > 9 ? `${i + 1}` : `0${i + 1}`;
-            let position = util.leftJustify(normalizedPosition + ".", 3);
+            let position = util.leftJustify(normalizedPosition + ".", 4);
             let name = util.leftJustify(response.users[i].name, 18);
             let points = util.leftJustify(response.users[i].totalPoints, 4);
             str += position + name + points + "\n";
@@ -153,8 +153,8 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
             str += "\n";
         }
 
-        for (var i = 0; i < response.length; i++) {
-            match = response[i];
+        for (var i = 0; i < response.matches.length; i++) {
+            match = response.matches[i];
 
             if (match.status == "P") {
                 var jsDate = new Date(match.timestamp * 1000);
@@ -166,10 +166,10 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
             } else {
                 time = match.status;
             }
-            away_team = match.team_away_code;
-            away_points = match.away_points.toString();
-            home_points = match.home_points.toString();
-            home_team = match.team_home_code;
+            away_team = match.away.code;
+            away_points = match.away.score.toString();
+            home_points = match.home.score.toString();
+            home_team = match.home.code;
             possession = match.possession;
 
             if (placar_mini)
@@ -177,13 +177,13 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
             else
                 str += util.leftJustify(time, 16);
 
-            if (possession == "away")
+            if (match.away.possession)
                 str += "»";
             else str += " ";
 
             str += util.leftJustify(away_team, 4) + util.rightJustify(away_points, 2) + " @ " + util.leftJustify(home_points, 2) + util.rightJustify(home_team, 4);
 
-            if (possession == "home")
+            if (match.home.possession)
                 str += "«\n";
             else str += " \n";
 
