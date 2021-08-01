@@ -10,28 +10,31 @@ process.env.TZ = 'America/Sao_Paulo';
 
 const WEEKS = CONSTANTS.WEEKS;
 const CURRENT_SEASON = CONSTANTS.CURRENT_SEASON;
-
 const bot = new TeleBot(BOT_KEY);
 
-function getRanking (week) {
-    url = API_DOMAIN + 'getRanking.php?season=' + CURRENT_SEASON;
-    if (week)
-        url += "&week="+week;
-    
+function getRanking(week) {
+    let url = `${API_DOMAIN}ranking/`;
+
+    if (week) {
+        url += `${CURRENT_SEASON}/${week}`
+    } else {
+        url += `season/${CURRENT_SEASON}`;
+    }
+
     return util.requestAPI(url);
 }
 
-function getScore (week) {
-    url = API_DOMAIN + 'getMatches.php?season=' + CURRENT_SEASON;
+function getScore(week) {
+    let url = `${API_DOMAIN}matches/${CURRENT_SEASON}/`;
 
     if (week) {
-        url += "&week="+week;
+        url += week;
     } else {
         nowTimetamp = Date.now() / 1000;
-        for (var i = 0; i < WEEKS.length; i++) {
+        for (let i = 0; i < WEEKS.length; i++) {
             if (nowTimetamp < WEEKS[i].timestamp) {
-                week = WEEKS[i].number;
-                url += "&week="+week;
+                const currentWeek = WEEKS[i].number;
+                url += currentWeek;
                 break;
             }
         }
@@ -41,10 +44,10 @@ function getScore (week) {
 
 //bot.on('text', (msg) => msg.reply.text(msg.text)); //Copycat message
 
-bot.on(['/start'], (msg) =>     msg.reply.text('Olá, eu sou o Aaron Botdgers e estou aqui pra entregar cada request que você fizer (assim como minha versão humana).'));
+bot.on(['/start'], (msg) => msg.reply.text('Olá, eu sou o Aaron Botdgers e estou aqui pra entregar cada request que você fizer (assim como minha versão humana).'));
 bot.on(['/help'], (msg) => {
     var chat_id = msg.chat.id;
-    
+
     var str = "Eu respondo aos seguintes comandos:\n\n";
     str += "<code>";
     str += "/ranking\n"
@@ -65,19 +68,19 @@ bot.on(['/help'], (msg) => {
     str += "    Retorna um gif da Hail Mary contra Detroit (Milagre de Detroit)\n";
     str += "</code>";
 
-    bot.sendMessage(chat_id, str, {"parseMode": "HTML"}).catch(err => console.log(err));
+    bot.sendMessage(chat_id, str, { "parseMode": "HTML" }).catch(err => console.log(err));
 });
 
-bot.on(['/belt'], (msg) =>      msg.reply.file('https://media.giphy.com/media/3o6wrpD9aOjLc5Q61W/giphy.gif', {asReply: true}));
-bot.on(['/hailmary'], (msg) =>  msg.reply.file('https://i.makeagif.com/media/12-04-2015/9p8g5g.gif', {asReply: true}));
-bot.on(['voice'], (msg) =>      msg.reply.text('Audible tá proibido nesse huddle.', { asReply: true }));
-bot.on('edit', (msg) =>         msg.reply.text('Eu vi você editando essa mensagem aí... 👀', { asReply: true }));
+bot.on(['/belt'], (msg) => msg.reply.file('https://media.giphy.com/media/3o6wrpD9aOjLc5Q61W/giphy.gif', { asReply: true }));
+bot.on(['/hailmary'], (msg) => msg.reply.file('https://i.makeagif.com/media/12-04-2015/9p8g5g.gif', { asReply: true }));
+bot.on(['voice'], (msg) => msg.reply.text('Audible tá proibido nesse huddle.', { asReply: true }));
+bot.on('edit', (msg) => msg.reply.text('Eu vi você editando essa mensagem aí... 👀', { asReply: true }));
 
 bot.on(['/ranking'], (msg) => {
     var str = "";
     var param = "";
     var chat_id = msg.chat.id;
-    
+
     if (msg.text.length > 8) {
         param = msg.text.substring(8);
         param = param.trim();
@@ -87,13 +90,13 @@ bot.on(['/ranking'], (msg) => {
             param = "";
     }
     var getRankingPromise = getRanking(param);
-    getRankingPromise.then(function(response) {
-        
+    getRankingPromise.then(function (response) {
+
         str += "<code>";
-        
+
         if (param.length > 0)
             str += "Semana " + param + "\n\n";
-        
+
         str += util.leftJustify("", 3);
         str += util.leftJustify("Nome", 18);
         str += util.leftJustify("Pts", 4);
@@ -105,41 +108,41 @@ bot.on(['/ranking'], (msg) => {
             str += position + name + points + "\n";
         }
         str += "</code>";
-        bot.sendMessage(chat_id, str, {"parseMode": "HTML"}).catch(err => console.log(err));
+        bot.sendMessage(chat_id, str, { "parseMode": "HTML" }).catch(err => console.log(err));
 
     }, function (err) {
         console.log(err);
-    });    
+    });
 });
-     
+
 bot.on(['/placar', '/placar_mini'], (msg) => {
     var str = "";
     var placar_mini = false;
     var param = "";
     var chat_id = msg.chat.id;
-    
+
     if (msg.text.substring(0, 12) == "/placar_mini")
         placar_mini = true;
-    
+
     if (!placar_mini && msg.text.length > 7)
         param = msg.text.substring(7);
     else if (placar_mini && msg.text.length > 12)
         param = msg.text.substring(12);
 
     param = param.trim();
-  
+
     if (param == "@BotdgersBot" ||
         param < 1 ||
         param > 21)
         param = "";
 
     var getScorePromise = getScore(param);
-    getScorePromise.then(function(response) {
-        
+    getScorePromise.then(function (response) {
+
         str += "<code>";
         if (param.length > 0)
             str += "Semana " + param + "\n\n";
-        
+
         //Header only if not mini scoreboard
         if (!placar_mini) {
             str += util.leftJustify("Status", 17);
@@ -148,16 +151,16 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
             str += "Home";
             str += "\n";
         }
-        
+
         for (var i = 0; i < response.length; i++) {
             match = response[i];
 
             if (match.status == "P") {
                 var jsDate = new Date(match.timestamp * 1000);
-                time =  (jsDate.getDate()<10?'0':'') + jsDate.getDate() + "/" + 
-                        (jsDate.getMonth()<10?'0':'') + jsDate.getMonth() + " " + 
-                        (jsDate.getHours()<10?'0':'') + jsDate.getHours() + ":" + 
-                        (jsDate.getMinutes()<10?'0':'') + jsDate.getMinutes();
+                time = (jsDate.getDate() < 10 ? '0' : '') + jsDate.getDate() + "/" +
+                    (jsDate.getMonth() < 10 ? '0' : '') + jsDate.getMonth() + " " +
+                    (jsDate.getHours() < 10 ? '0' : '') + jsDate.getHours() + ":" +
+                    (jsDate.getMinutes() < 10 ? '0' : '') + jsDate.getMinutes();
 
             } else {
                 time = match.status;
@@ -186,11 +189,11 @@ bot.on(['/placar', '/placar_mini'], (msg) => {
         }
         str += "\n\nHorário de Brasília (GMT-3)"
         str += "</code>";
-        bot.sendMessage(chat_id, str, {"parseMode": "HTML"}).catch(err => console.log(err));
+        bot.sendMessage(chat_id, str, { "parseMode": "HTML" }).catch(err => console.log(err));
 
     }, function (err) {
         console.log(err);
-    });    
+    });
 });
 
 bot.start();
@@ -201,11 +204,11 @@ var app = express();
 app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
-app.get('/', function(request, response) {
-  response.sendFile(__dirname + '/views/index.html');
+app.get('/', function (request, response) {
+    response.sendFile(__dirname + '/views/index.html');
 });
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function() {
-  console.log('Your app is listening on port ' + listener.address().port);
+var listener = app.listen(process.env.PORT, function () {
+    console.log('Your app is listening on port ' + listener.address().port);
 });
