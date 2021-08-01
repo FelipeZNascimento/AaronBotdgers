@@ -1,5 +1,3 @@
-const http = require('http');
-const request = require('request');
 const express = require('express');
 const TeleBot = require('telebot');
 const CONSTANTS = require('./constants.js');
