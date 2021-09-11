@@ -141,7 +141,19 @@ const weeks = [
     }
 ];
 
+const FLEAFLICKER_TRANSACTIONS = {
+    CLAIM: {
+        TYPE: "TRANSACTION_CLAIM",
+        DESCRIPTION: "Claim",
+    },
+    DROP: {
+        TYPE: "TRANSACTION_DROP",
+        DESCRIPTION: "Cut",
+    }
+};
+
 module.exports = {
-  WEEKS : weeks,
-  CURRENT_SEASON : currentSeason
+    WEEKS: weeks,
+    CURRENT_SEASON: currentSeason,
+    FLEAFLICKER_TRANSACTIONS: FLEAFLICKER_TRANSACTIONS
 };

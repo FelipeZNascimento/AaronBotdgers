@@ -1,16 +1,24 @@
 const express = require('express');
 const TeleBot = require('telebot');
 const CONSTANTS = require('./constants.js');
-var util = require('./util.js');
+const dotenv = require('dotenv');
+const util = require('./util.js');
 
 //Environment variables
+dotenv.config();
 const BOT_KEY = process.env.BOT_KEY;
 const API_DOMAIN = process.env.API_DOMAIN;
 process.env.TZ = 'America/Sao_Paulo';
 
 const WEEKS = CONSTANTS.WEEKS;
 const CURRENT_SEASON = CONSTANTS.CURRENT_SEASON;
+const FLEAFLICKER_TRANSACTIONS = CONSTANTS.FLEAFLICKER_TRANSACTIONS;
 const bot = new TeleBot(BOT_KEY);
+
+function getDynastyTransactions() {
+    let url = `https://www.fleaflicker.com/api/FetchLeagueActivity?league_id=294555`;
+    return util.requestAPI(url);
+}
 
 function getRanking(week) {
     let url = `${API_DOMAIN}ranking/`;
@@ -76,10 +84,49 @@ bot.on(['/hailmary'], (msg) => msg.reply.file('https://i.makeagif.com/media/12-0
 bot.on(['voice'], (msg) => msg.reply.text('Audible tá proibido nesse huddle.', { asReply: true }));
 bot.on('edit', (msg) => msg.reply.text('Eu vi você editando essa mensagem aí... 👀', { asReply: true }));
 
+bot.on(['/dynasty_transacoes'], (msg) => {
+    const chat_id = msg.chat.id;
+    let str = "";
+    let getPromisse = getDynastyTransactions();
+    getPromisse.then(function (response) {
+        str += "<code>";
+        str += `ÚLTIMAS TRANSAÇÕES - LIGA DYNASTY\n\n`;
+        const transactions = response.items;
+        for (var i = 0; i < 10; i++) {
+            if (transactions[i].transaction) {
+                const { team, player, type, bidAmount } = transactions[i].transaction;
+                const { nameShort, position, proTeam } = player.proPlayer;
+
+                str += `[${position}] `;
+                str += `${nameShort} `;
+                str += `(${proTeam.abbreviation})\n`;
+
+                if (!type) {
+                    str += "Free Agency (Add) -> ";
+                    str += team.name;
+                } else if (type === FLEAFLICKER_TRANSACTIONS.DROP.TYPE) {
+                    str += team.name;
+                    str += ` -> Free Agency (${FLEAFLICKER_TRANSACTIONS.DROP.DESCRIPTION})`;
+                } else if (type === FLEAFLICKER_TRANSACTIONS.CLAIM.TYPE) {
+                    str += `Free Agency (${FLEAFLICKER_TRANSACTIONS.CLAIM.DESCRIPTION}: $${bidAmount}) -> `;
+                    str += team.name;
+                }
+                str += "\n\n";
+            }
+        }
+        str += "</code>";
+        bot.sendMessage(chat_id, str, { "parseMode": "HTML" }).catch(err => console.log(err));
+
+    }, function (err) {
+        console.log(err);
+    });
+
+    // https://www.fleaflicker.com/api/FetchLeagueActivity?league_id=294555
+});
 bot.on(['/ranking'], (msg) => {
-    var str = "";
-    var param = "";
-    var chat_id = msg.chat.id;
+    const chat_id = msg.chat.id;
+    let str = "";
+    let param = "";
 
     if (msg.text.length > 8) {
         param = msg.text.substring(8);
@@ -102,7 +149,9 @@ bot.on(['/ranking'], (msg) => {
         str += util.leftJustify("Pts", 4);
         str += "\n";
         for (var i = 0; i < response.users.length; i++) {
-            let normalizedPosition = i + 1 > 9 ? `${i + 1}` : `0${i + 1}`;
+            let normalizedPosition = response.users[i].position < 10
+                ? `0${response.users[i].position}`
+                : `${response.users[i].position}`;
             let position = util.leftJustify(normalizedPosition + ".", 4);
             let name = util.leftJustify(response.users[i].name, 18);
             let points = util.leftJustify(response.users[i].totalPoints, 4);
@@ -112,7 +161,7 @@ bot.on(['/ranking'], (msg) => {
         bot.sendMessage(chat_id, str, { "parseMode": "HTML" }).catch(err => console.log(err));
 
     }, function (err) {
-        console.log(err);
+        console.log(`error: ${err}`);
     });
 });
 

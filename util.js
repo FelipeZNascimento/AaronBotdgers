@@ -16,6 +16,7 @@ function requestAPI(url) {
     return new Promise(function(resolve, reject) {
         request.get(options, function(err, resp, body) {
             if (err) {
+                console.log(`Error: ${err}`);
                 reject(err);
             } else {
                 resolve(JSON.parse(body));
