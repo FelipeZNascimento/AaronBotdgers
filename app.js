@@ -86,17 +86,22 @@ bot.on('edit', (msg) => msg.reply.text('Eu vi você editando essa mensagem aí..
 
 bot.on(['/dynasty_transacoes'], (msg) => {
     const chat_id = msg.chat.id;
+    let transactionsCounter = 0;
     let str = "";
     let getPromisse = getDynastyTransactions();
     getPromisse.then(function (response) {
         str += "<code>";
         str += `ÚLTIMAS TRANSAÇÕES - LIGA DYNASTY\n\n`;
         const transactions = response.items;
-        for (var i = 0; i < 10; i++) {
-            if (transactions[i].transaction) {
-                const { team, player, type, bidAmount } = transactions[i].transaction;
+        transactions.forEach((item) => {
+            if (item.transaction && transactionsCounter < 10) {
+                transactionsCounter++;
+                const { team, player, type, bidAmount } = item.transaction;
                 const { nameShort, position, proTeam } = player.proPlayer;
+                const timeEpoch = parseInt(item.timeEpochMilli, 10);
+                const date = new Date(timeEpoch).toLocaleString('pt-br');
 
+                str += `${date}\n`;
                 str += `[${position}] `;
                 str += `${nameShort} `;
                 str += `(${proTeam.abbreviation})\n`;
@@ -113,7 +118,7 @@ bot.on(['/dynasty_transacoes'], (msg) => {
                 }
                 str += "\n\n";
             }
-        }
+        })
         str += "</code>";
         bot.sendMessage(chat_id, str, { "parseMode": "HTML" }).catch(err => console.log(err));
 
